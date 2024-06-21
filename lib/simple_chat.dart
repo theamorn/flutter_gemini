@@ -16,7 +16,7 @@ class _SimpleChatState extends State<SimpleChat> {
     super.initState();
     final model = GenerativeModel(
       model: 'gemini-1.5-flash-latest',
-      apiKey: 'YOUR_API_KEY',
+      apiKey: 'YOUR-API-KEY',
     );
 
     const prompt = '''what's MAKE by KBank''';

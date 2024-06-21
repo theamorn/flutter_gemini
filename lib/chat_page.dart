@@ -12,7 +12,8 @@ enum ChatType {
   simple,
   pretrain,
   pretrainAndCharacter,
-  functionCallback,
+  functionCallbackFinance,
+  functionCallbackAPI
 }
 
 class TransferObject {
@@ -465,8 +466,6 @@ class _ChatPageState extends State<ChatPage> {
        "answer":"ปัจจุบันยังไม่สามารถทำได้"
     }
  ]
-
-
   ''';
 
   final prepromptAndCharacter = '''
@@ -905,13 +904,13 @@ Your task is to chat with customers who need helps about
     }
  ]
 
-    if users ask the question not relate to financial, customer information, pokemon name and information, or about application. You have to response that
-    you only know about financial and banking only and some Pokemon as well.
+    if users ask the question not relate to financial, personal customer information, or about application. You have to response that
+    you only know about financial, and banking only.
 
-    and here's the information of current customer in JSON format
+    and here's the information of our customer in JSON format, please use this information to understand who is the user
     JSON:
     {
-      "name": "Amorn Apichattanakul",
+      "name": "อมร อภิชาติธนากูล",
       "account_number": "123-4-56789-0",
       "phone_number": "081-234-5678",
       "work": "Software Engineer",
@@ -983,7 +982,7 @@ Your task is to chat with customers who need helps about
         'name': arguments['pokemon_name'],
         'element_type': pokemonInfo['types'][0]['type']['name'],
         'height': pokemonInfo['height'],
-        'weight': pokemonInfo['weight'],
+        'weight': '${pokemonInfo['weight']} kg',
       };
     } else {
       print('Request failed with status: ${response.statusCode}.');
@@ -1040,6 +1039,31 @@ Your task is to chat with customers who need helps about
       ]));
 
   void _startChat(ChatType type) {
+    final listText = [
+      Content.text("สวัสดีครับ"),
+      Content.model([
+        TextPart('''สวัสดีฮะ ผมชื่อน้องเมคนะคับ ผมเป็น AI 
+        ที่ถูกสอนโดยพี่ๆทีมงาน แม้ว่าจะยังเด็กอยู่ แต่ผมจะพยายามช่วยพี่ๆ
+        ให้เต็มที่นะคับ มีอะไรให้เมคช่วยมั้ย ถามมาได้เลยค้าบ''')
+      ]),
+      Content.text("สอบถามปัญหาการใช้งานหน่อยครับ พอดีเข้า แอปไม่ได้"),
+      Content.model([
+        TextPart('''ถ้าเข้าแอปไม่ได้ น้องเมคแนะนำ พี่ๆให้ติดต่อไปที่
+             Facebook page ดีกว่าฮะ เพราะการใช้งานไม่ได้นั้น มีหลายสาเหตุ
+             น้องเมคกลัวแนะนำผิด แล้วพี่ๆเสียเวลานะ''')
+      ]),
+      Content.text("สอบถามเรื่องการฟอกเงินหน่อยครับ"),
+      Content.model([
+        TextPart(
+            "พี่ๆค้าบ น้องเมคเรียนมาแต่เรื่องการเงิน และข้อมูลของแอป MAKE by KBank เท่านั้นฮะ")
+      ]),
+      Content.text("ผมออมเงินได้วันละ 200 บาทครับ"),
+      Content.model([
+        TextPart(
+            "สุดยอดไปเลยพี่! น้องเมคเป็นกำลังใจให้ น้องเมคยังทำได้แค่วันละ 10 เองฮะ")
+      ])
+    ];
+
     switch (type) {
       case ChatType.simple:
         _chat = _model.startChat();
@@ -1048,39 +1072,27 @@ Your task is to chat with customers who need helps about
         _chat = _model.startChat();
 
       case ChatType.pretrainAndCharacter:
+        _chat = _model.startChat(history: listText);
+
+      case ChatType.functionCallbackFinance:
+        _chat = _model.startChat(history: listText);
+
+      case ChatType.functionCallbackAPI:
         _chat = _model.startChat(history: [
           Content.text("สวัสดีครับ"),
           Content.model([
-            TextPart('''สวัสดีฮะ ผมชื่อน้องเมคนะคับ ผมเป็น AI 
-        ที่ถูกสอนโดยพี่ๆทีมงาน แม้ว่าจะยังเด็กอยู่ แต่ผมจะพยายามช่วยพี่ๆ
-        ให้เต็มที่นะคับ มีอะไรให้เมคช่วยมั้ย ถามมาได้เลยค้าบ''')
-          ]),
-          Content.text("สอบถามปัญหาการใช้งานหน่อยครับ พอดีเข้า แอปไม่ได้"),
-          Content.model([
-            TextPart('''ถ้าเข้าแอปไม่ได้ น้องเมคแนะนำ พี่ๆให้ติดต่อไปที่
-             Facebook page ดีกว่าฮะ เพราะการใช้งานไม่ได้นั้น มีหลายสาเหตุ
-             น้องเมคกลัวแนะนำผิด แล้วพี่ๆเสียเวลานะ''')
-          ]),
-          Content.text("สอบถามเรื่องการฟอกเงินหน่อยครับ"),
-          Content.model([
             TextPart(
-                "พี่ๆค้าบ น้องเมคเรียนมาแต่เรื่องการเงิน และข้อมูลของแอป MAKE by KBank เท่านั้นฮะ")
+                '''สวัสดีครับ ผมเป็นผู้เชี่ยวชาญที่ศึกษาเรื่อง Pokemon มาแล้วทั่วโลก
+            ผมมีข้อมูล Pokemon ทุกประเภทอยู่ในหัว อยากทราบข้อมูลตัวไหน บอกมาได้เลยครับ''')
           ]),
-          Content.text("ผมออมเงินได้วันละ 200 บาทครับ"),
-          Content.model([
-            TextPart(
-                "สุดยอดไปเลยพี่! น้องเมคเป็นกำลังใจให้ น้องเมคยังทำได้แค่วันละ 10 เองฮะ")
-          ]),
+          Content.text("ผมชอบ pikachu อยากรู้ มีข้อมูลไหมครับ"),
         ]);
-
-      case ChatType.functionCallback:
-        _chat = _model.startChat();
     }
   }
 
   GenerativeModel modelType(ChatType type) {
     const modelName = "gemini-1.5-pro-latest";
-    const key = "YOUR_API_KEY";
+    const key = "YOUR-API-KEY";
     return switch (type) {
       ChatType.simple => GenerativeModel(model: modelName, apiKey: key),
       ChatType.pretrain => GenerativeModel(
@@ -1091,12 +1103,22 @@ Your task is to chat with customers who need helps about
           model: modelName,
           apiKey: key,
           systemInstruction: Content.system(prepromptAndCharacter)),
-      ChatType.functionCallback => GenerativeModel(
+      ChatType.functionCallbackFinance => GenerativeModel(
             model: modelName,
             apiKey: key,
             systemInstruction: Content.system(prepromptAndCharacter),
             tools: [
-              Tool(functionDeclarations: [transferTool, pokemonTool])
+              Tool(functionDeclarations: [transferTool])
+            ]),
+      ChatType.functionCallbackAPI => GenerativeModel(
+            model: modelName,
+            apiKey: key,
+            systemInstruction: Content.system('''
+            You're a professor that study about Pokemon around the world
+            You will answer the question about details of pokemon when user provide the name into it
+            '''),
+            tools: [
+              Tool(functionDeclarations: [pokemonTool])
             ]),
     };
   }
@@ -1221,14 +1243,13 @@ Your task is to chat with customers who need helps about
     }
   }
 
-  Future<void> _handleFunctionCallback(String message) async {
+  Future<void> _handleFunctionAPI(String message) async {
     var response = await _chat.sendMessage(Content.text(message));
     final functionCalls = response.functionCalls.toList();
     if (functionCalls.isNotEmpty) {
       final functionCall = functionCalls.first;
       final result = switch (functionCall.name) {
         // Forward arguments to the hypothetical API.
-        'makeTransfer' => await makeTransfer(functionCall.args),
         'getPokemonInfo' => await getPokemonInfo(functionCall.args),
         // Throw an exception if the model attempted to call a function that was
         // not declared.
@@ -1238,17 +1259,45 @@ Your task is to chat with customers who need helps about
       // Send the response to the model so that it can use the result to generate
       // text for the user.
 
-      if (result['type'] == 'transfer') {
-        final data = TransferObject.fromJson(result);
-        final textMessage = types.TextMessage(
-          author: _user,
-          createdAt: DateTime.now().millisecondsSinceEpoch,
-          id: const Uuid().v4(),
-          text:
-              "Transfering from ${data.owner} ${data.amount} to ${data.receiver}",
-        );
-        _addMessage(textMessage);
-      }
+      response = await _chat
+          .sendMessage(Content.functionResponse(functionCall.name, result));
+    }
+    // When the model responds with non-null text content, print it.
+    if (response.text case final text?) {
+      final textMessage = types.TextMessage(
+        author: _user,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        id: const Uuid().v4(),
+        text: text,
+      );
+      _addMessage(textMessage);
+    }
+  }
+
+  Future<void> _handleFunctionCallback(String message) async {
+    var response = await _chat.sendMessage(Content.text(message));
+    final functionCalls = response.functionCalls.toList();
+    if (functionCalls.isNotEmpty) {
+      final functionCall = functionCalls.first;
+      final result = switch (functionCall.name) {
+        // Forward arguments to the hypothetical API.
+        'makeTransfer' => await makeTransfer(functionCall.args),
+        // Throw an exception if the model attempted to call a function that was
+        // not declared.
+        _ => throw UnimplementedError(
+            'Function not implemented: ${functionCall.name}')
+      };
+      // Send the response to the model so that it can use the result to generate
+      // text for the user.
+      final data = TransferObject.fromJson(result);
+      final textMessage = types.TextMessage(
+        author: _user,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        id: const Uuid().v4(),
+        text:
+            "Transfering from ${data.owner} ${data.amount} to ${data.receiver}",
+      );
+      _addMessage(textMessage);
 
       response = await _chat
           .sendMessage(Content.functionResponse(functionCall.name, result));
@@ -1275,8 +1324,10 @@ Your task is to chat with customers who need helps about
 
     _addMessage(textMessage);
 
-    if (widget.chatType == ChatType.functionCallback) {
+    if (widget.chatType == ChatType.functionCallbackFinance) {
       await _handleFunctionCallback(message.text);
+    } else if (widget.chatType == ChatType.functionCallbackAPI) {
+      await _handleFunctionAPI(message.text);
     } else {
       await _handleSimpleChat(message.text);
     }

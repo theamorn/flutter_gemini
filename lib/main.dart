@@ -64,12 +64,22 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _gotoIntegrateChatbot() {
+  void _gotoIntegrateChatbotFinance() {
     Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => const ChatPage(
-                chatType: ChatType.functionCallback,
+                chatType: ChatType.functionCallbackFinance,
+              )),
+    );
+  }
+
+  void _gotoIntegrateChatbotPokemon() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => const ChatPage(
+                chatType: ChatType.functionCallbackAPI,
               )),
     );
   }
@@ -119,11 +129,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: const Text('Pretrain and character ChatBot')),
             const SizedBox(height: 20),
             TextButton(
-                onPressed: _gotoIntegrateChatbot,
+                onPressed: _gotoIntegrateChatbotFinance,
                 style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all(Colors.grey.shade100)),
                 child: const Text('Automated ChatBot')),
+            const SizedBox(height: 20),
+            TextButton(
+                onPressed: _gotoIntegrateChatbotPokemon,
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.grey.shade100)),
+                child: const Text('Automated ChatBot with Pokemon')),
           ],
         ),
       ),
